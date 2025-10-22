@@ -1,90 +1,79 @@
 package model;
 
+import java.util.Objects;
+
 /**
- * POJO (Plain Old Java Object) representing the LopHocPhan table.
- * This is our "Model" for a specific course section.
- * It links a MonHoc (Subject) to a GiangVien (Lecturer) for a specific semester.
+ * POJO representing the LopHocPhan table.
+ * Links a MonHoc (Subject) to a GiangVien (Lecturer) for a specific semester.
  */
 public class LopHocPhan {
+    // Constants for semester values
+    public static final int HOC_KY_1 = 1;
+    public static final int HOC_KY_2 = 2;
+    public static final int HOC_KY_HE = 3;
 
-    private String maLop; // Primary Key
-    private String maMonHoc; // Foreign key to MonHoc
-    private String maGiangVien; // Foreign key to GiangVien
-    private int hocKy; // Semester (e.g., 1, 2, or 3 for summer)
-    private int namHoc; // Starting year of the academic year (e.g., 2023 for 2023-2024)
+    private String maLop;
+    private String maMonHoc;
+    private String maGiangVien;
+    private int hocKy;
+    private int namHoc;
 
-    /**
-     * Default constructor.
-     */
-    public LopHocPhan() {
-    }
+    public LopHocPhan() {}
 
-    /**
-     * Constructor with all fields.
-     * @param maLop Primary key (course section ID)
-     * @param maMonHoc Foreign key to MonHoc
-     * @param maGiangVien Foreign key to GiangVien
-     * @param hocKy Semester
-     * @param namHoc Academic year
-     */
     public LopHocPhan(String maLop, String maMonHoc, String maGiangVien, int hocKy, int namHoc) {
-        this.maLop = maLop;
-        this.maMonHoc = maMonHoc;
-        this.maGiangVien = maGiangVien;
-        this.hocKy = hocKy;
-        this.namHoc = namHoc;
+        setMaLop(maLop);
+        setMaMonHoc(maMonHoc);
+        setMaGiangVien(maGiangVien);
+        setHocKy(hocKy);
+        setNamHoc(namHoc);
     }
 
-    // --- Getters and Setters ---
-
-    public String getMaLop() {
-        return maLop;
-    }
-
+    // Getters and Setters with validation
+    public String getMaLop() { return maLop; }
+    
     public void setMaLop(String maLop) {
-        this.maLop = maLop;
-    }
-
-    public String getMaMonHoc() {
-        return maMonHoc;
-    }
-
-    public void setMaMonHoc(String maMonHoc) {
-        this.maMonHoc = maMonHoc;
-    }
-
-    public String getMaGiangVien() {
-        return maGiangVien;
-    }
-
-    public void setMaGiangVien(String maGiangVien) {
-        this.maGiangVien = maGiangVien;
-    }
-
-    public int getHocKy() {
-        return hocKy;
+        if (maLop == null || maLop.trim().isEmpty()) {
+            throw new IllegalArgumentException("Ma lop cannot be null or empty");
+        }
+        this.maLop = maLop.trim();
     }
 
     public void setHocKy(int hocKy) {
+        if (hocKy < HOC_KY_1 || hocKy > HOC_KY_HE) {
+            throw new IllegalArgumentException("Hoc ky must be between " + HOC_KY_1 + " and " + HOC_KY_HE);
+        }
         this.hocKy = hocKy;
     }
 
-    public int getNamHoc() {
-        return namHoc;
-    }
-
     public void setNamHoc(int namHoc) {
+        int currentYear = java.time.Year.now().getValue();
+        if (namHoc < 2000 || namHoc > currentYear + 1) {
+            throw new IllegalArgumentException("Nam hoc must be between 2000 and " + (currentYear + 1));
+        }
         this.namHoc = namHoc;
     }
 
-    /**
-     * Provides a user-friendly string representation.
-     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LopHocPhan that = (LopHocPhan) o;
+        return Objects.equals(maLop, that.maLop);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(maLop);
+    }
+
     @Override
     public String toString() {
-        // e.g., "LHP: [MA001] (GV: GV001) - HK1 2023-2024"
-        return "LHP: [" + this.maMonHoc + "] (GV: " + this.maGiangVien +
-                ") - HK" + this.hocKy + " " + this.namHoc + "-" + (this.namHoc + 1);
+        return String.format("LHP: [%s] (GV: %s) - HK%d %d-%d", 
+            maMonHoc, maGiangVien, hocKy, namHoc, namHoc + 1);
+    }
+
+    // Static factory method
+    public static LopHocPhan of(String maLop, String maMonHoc, String maGiangVien, int hocKy, int namHoc) {
+        return new LopHocPhan(maLop, maMonHoc, maGiangVien, hocKy, namHoc);
     }
 }
-
